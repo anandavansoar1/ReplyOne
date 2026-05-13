@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --secondary: #F1F5F9;
+  --border: rgba(0, 0, 0, 0.06);
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+}
+
+.dark:root {
+  --background: #020617;
+  --foreground: #F8FAFC;
+  --card: rgba(30, 41, 59, 0.5);
+  --secondary: #0F172A;
+  --border: rgba(255, 255, 255, 0.1);
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+}
+
+.glass {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-width: 1px;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.glass-dark {
+  background-color: rgba(15, 23, 42, 0.6);
+  border-width: 1px;
+  border-color: rgba(255, 255, 255, 0.08);
+}
