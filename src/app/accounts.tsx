@@ -9,7 +9,6 @@ import {
   RefreshCw,
   CheckCircle,
   AlertCircle,
-  Activity,
   LogOut
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
@@ -71,7 +70,7 @@ export default function AccountsScreen() {
         <ScrollView 
           className="flex-1 px-6" 
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 120, paddingTop: 20 }}
+          contentContainerStyle={{ paddingBottom: 220, paddingTop: 20 }}
         >
           <View className="mb-8">
             <Text className="text-text-muted text-sm font-medium mb-1 uppercase tracking-widest">Channel Management</Text>
@@ -149,12 +148,14 @@ export default function AccountsScreen() {
                         "px-6 py-2.5 rounded-xl border items-center justify-center shadow-sm",
                         account.status === 'connected' 
                           ? "border-border bg-card" 
-                          : "bg-foreground border-foreground dark:bg-foreground"
+                          : (isDark ? "bg-white border-white" : "bg-[#0F172A] border-[#0F172A]")
                       )}
                     >
                       <Text className={cn(
                         "text-sm font-bold",
-                        account.status === 'connected' ? "text-text-primary" : "text-background"
+                        account.status === 'connected' 
+                          ? "text-text-primary" 
+                          : (isDark ? "text-black" : "text-white")
                       )}>
                         {account.status === 'connected' ? 'Configure' : 'Connect'}
                       </Text>
@@ -163,34 +164,40 @@ export default function AccountsScreen() {
                 </BlurView>
               </Animated.View>
             ))}
+
+            {/* Redesigned Connect New Account Card */}
+            <Animated.View 
+              entering={FadeInDown.delay(ACCOUNTS.length * 150)}
+              className="mt-2"
+            >
+              <TouchableOpacity 
+                activeOpacity={0.8}
+                className="rounded-[32px] border-2 border-dashed border-border p-8 items-center justify-center bg-secondary/10 gap-3"
+              >
+                <View className="w-12 h-12 rounded-full bg-accent items-center justify-center shadow-lg shadow-accent/20">
+                  <Plus size={24} color="#FFF" />
+                </View>
+                <View className="items-center">
+                  <Text className="text-text-primary text-lg font-bold">Connect New Account</Text>
+                  <Text className="text-text-muted text-xs">Add Instagram, WhatsApp or Facebook</Text>
+                </View>
+              </TouchableOpacity>
+            </Animated.View>
+
+            {/* Minimal Logout Link */}
+            <TouchableOpacity 
+              onPress={() => {
+                logout();
+                router.replace('/login');
+              }}
+              activeOpacity={0.7}
+              className="mt-8 mb-12 flex-row items-center justify-center gap-2"
+            >
+              <LogOut size={16} color="#EF4444" />
+              <Text className="text-red-500 text-sm font-bold uppercase tracking-widest">Logout Session</Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
-
-        {/* Bottom CTA */}
-        <View className="absolute bottom-10 left-6 right-6 gap-3">
-          <TouchableOpacity 
-            activeOpacity={0.8}
-            className="h-16 bg-foreground rounded-2xl flex-row items-center justify-center gap-2 shadow-2xl shadow-black/20"
-          >
-            <Plus size={20} color={isDark ? "#000" : "#FFF"} />
-            <Text className={cn(
-              "text-lg font-bold",
-              isDark ? "text-black" : "text-white"
-            )}>Connect New Account</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            onPress={() => {
-              logout();
-              router.replace('/login');
-            }}
-            activeOpacity={0.8}
-            className="h-16 bg-red-500/10 border border-red-500/20 rounded-2xl flex-row items-center justify-center gap-2"
-          >
-            <LogOut size={20} color="#EF4444" />
-            <Text className="text-red-500 text-lg font-bold">Logout Session</Text>
-          </TouchableOpacity>
-        </View>
       </SafeAreaView>
       
       <FloatingNavbar activeTab="settings" />

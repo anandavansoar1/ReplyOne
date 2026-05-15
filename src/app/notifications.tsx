@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Image } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Image, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { 
   MessageCircle, 
@@ -10,7 +10,8 @@ import {
   Send, 
   User,
   Mail,
-  Bell
+  Bell,
+  ChevronRight
 } from 'lucide-react-native';
 import { PremiumHeader } from '@/components/ui/layout/PremiumHeader';
 import { Card } from '@/components/ui/cards/Card';
@@ -18,14 +19,15 @@ import { cn } from '@/utils/cn';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useColorScheme } from 'nativewind';
 import { FloatingNavbar } from '@/components/ui/layout/FloatingNavbar';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type NotificationType = 'comment' | 'message' | 'mention' | 'alert';
-type Platform = 'instagram' | 'facebook' | 'twitter' | 'linkedin';
+type PlatformType = 'instagram' | 'facebook' | 'twitter' | 'linkedin';
 
 interface Notification {
   id: string;
   type: NotificationType;
-  platform: Platform;
+  platform: PlatformType;
   user: {
     name: string;
     avatar: string;
@@ -45,7 +47,7 @@ const MOCK_NOTIFICATIONS: Notification[] = [
       avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
     },
     content: 'mentioned you in a comment: "This looks exactly like what we discussed! @alex"',
-    timestamp: '2m ago',
+    timestamp: '2M AGO',
     isUnread: true,
   },
   {
@@ -57,7 +59,7 @@ const MOCK_NOTIFICATIONS: Notification[] = [
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
     },
     content: 'sent you a direct message',
-    timestamp: '15m ago',
+    timestamp: '15M AGO',
     isUnread: true,
   },
   {
@@ -69,7 +71,7 @@ const MOCK_NOTIFICATIONS: Notification[] = [
       avatar: 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=100&h=100&fit=crop',
     },
     content: 'Failed to deliver message to "Marketing Group". Tap to retry.',
-    timestamp: '1h ago',
+    timestamp: '1H AGO',
     isUnread: false,
   },
   {
@@ -78,10 +80,10 @@ const MOCK_NOTIFICATIONS: Notification[] = [
     platform: 'linkedin',
     user: {
       name: 'Elena Rodriguez',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop',
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop',
     },
     content: 'commented on your post: "Great insights on the new API structure."',
-    timestamp: '3h ago',
+    timestamp: '3H AGO',
     isUnread: false,
   },
   {
@@ -90,10 +92,10 @@ const MOCK_NOTIFICATIONS: Notification[] = [
     platform: 'twitter',
     user: {
       name: 'Marcus Thorne',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop',
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop',
     },
     content: 'mentioned you: "Can we get a review on this PR?"',
-    timestamp: '5h ago',
+    timestamp: '5H AGO',
     isUnread: false,
   },
 ];
@@ -106,24 +108,31 @@ const FilterTab = ({
   label: string; 
   active: boolean; 
   onPress: () => void;
-}) => (
-  <TouchableOpacity 
-    onPress={onPress}
-    className={cn(
-      "px-5 py-2 rounded-full mr-2 border",
-      active 
-        ? "bg-accent border-accent" 
-        : "bg-secondary border-border"
-    )}
-  >
-    <Text className={cn(
-      "text-sm font-medium",
-      active ? "text-white" : "text-text-secondary"
-    )}>
-      {label}
-    </Text>
-  </TouchableOpacity>
-);
+}) => {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
+  return (
+    <TouchableOpacity 
+      onPress={onPress}
+      className={cn(
+        "px-6 py-2.5 rounded-full mr-3 border transition-all",
+        active 
+          ? (isDark ? "bg-white border-white" : "bg-[#0F172A] border-[#0F172A]") 
+          : "bg-card border-border"
+      )}
+    >
+      <Text className={cn(
+        "text-sm font-bold",
+        active 
+          ? (isDark ? "text-black" : "text-white") 
+          : "text-text-secondary"
+      )}>
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
+};
 
 const NotificationCard = ({ notification, index }: { notification: Notification, index: number }) => {
   const { colorScheme } = useColorScheme();
@@ -151,32 +160,35 @@ const NotificationCard = ({ notification, index }: { notification: Notification,
 
   const getPlatformColor = () => {
     switch (notification.platform) {
-      case 'instagram': return 'bg-pink-600';
-      case 'facebook': return 'bg-blue-600';
-      case 'twitter': return 'bg-sky-500';
-      case 'linkedin': return 'bg-blue-700';
+      case 'instagram': return 'bg-[#E4405F]';
+      case 'facebook': return 'bg-[#1877F2]';
+      case 'twitter': return 'bg-[#1DA1F2]';
+      case 'linkedin': return 'bg-[#0A66C2]';
     }
   };
 
   return (
     <Animated.View 
       entering={FadeInDown.delay(index * 100).duration(500)}
-      className="mb-3 px-4"
+      className="mb-3 px-6"
     >
-      <Card 
+      <TouchableOpacity 
+        activeOpacity={0.8}
         className={cn(
-          "flex-row p-4 items-start",
-          notification.isUnread && "border-accent/30 bg-accent/5"
+          "bg-card border border-border rounded-[28px] p-5 flex-row items-center gap-4",
+          notification.isUnread && "bg-secondary/40 border-accent/20"
         )}
       >
         {/* Avatar & Platform Icon */}
         <View className="relative">
-          <Image 
-            source={{ uri: notification.user.avatar }} 
-            className="w-12 h-12 rounded-full border border-border"
-          />
+          <View className="w-14 h-14 rounded-2xl bg-secondary overflow-hidden border border-border/10">
+            <Image 
+              source={{ uri: notification.user.avatar }} 
+              className="w-full h-full"
+            />
+          </View>
           <View className={cn(
-            "absolute -bottom-1 -right-1 w-5 h-5 rounded-full items-center justify-center border-2 border-card",
+            "absolute -bottom-1 -right-1 w-6 h-6 rounded-full items-center justify-center border-2 border-card",
             getPlatformColor()
           )}>
             {getPlatformIcon()}
@@ -184,32 +196,34 @@ const NotificationCard = ({ notification, index }: { notification: Notification,
         </View>
 
         {/* Content */}
-        <View className="flex-1 ml-4">
+        <View className="flex-1">
           <View className="flex-row items-center justify-between mb-1">
-            <View className="flex-row items-center gap-1.5">
-              <Text className="text-text-primary font-bold">{notification.user.name}</Text>
-              <View className="opacity-60">{getTypeIcon()}</View>
+            <View className="flex-row items-center gap-2">
+              <Text className="text-text-primary font-bold text-base tracking-tight">{notification.user.name}</Text>
+              {notification.isUnread && (
+                <View className="w-2 h-2 rounded-full bg-accent" />
+              )}
             </View>
-            <Text className="text-text-muted text-[10px] font-medium uppercase tracking-wider">
+            <Text className="text-text-muted text-[10px] font-bold uppercase tracking-widest">
               {notification.timestamp}
             </Text>
           </View>
           
           <Text 
             className={cn(
-              "text-sm leading-5",
-              notification.isUnread ? "text-text-primary font-medium" : "text-text-secondary"
+              "text-[13px] leading-5",
+              notification.isUnread ? "text-text-primary font-bold" : "text-text-secondary font-medium"
             )}
             numberOfLines={2}
           >
             {notification.content}
           </Text>
-
-          {notification.isUnread && (
-            <View className="absolute -left-1 top-2 w-1.5 h-1.5 rounded-full bg-accent" />
-          )}
         </View>
-      </Card>
+
+        <View className="opacity-30 ml-2">
+          <ChevronRight size={16} color="#64748B" />
+        </View>
+      </TouchableOpacity>
     </Animated.View>
   );
 };
@@ -230,28 +244,24 @@ export default function NotificationsScreen() {
   return (
     <View className="flex-1 bg-background">
       <SafeAreaView className="flex-1" edges={['top']}>
-        <PremiumHeader 
-          title="Notifications" 
-          showBack={true}
-          showThemeToggle={true}
-          rightComponent={
-            <TouchableOpacity 
-              className="flex-row items-center gap-1.5 px-3 py-1.5 bg-accent/10 rounded-full border border-accent/20"
-              onPress={() => {}}
-            >
-              <Text className="text-accent text-[10px] font-bold uppercase tracking-wider">Mark all</Text>
-            </TouchableOpacity>
-          }
-        />
+        <View className="px-6 py-6 flex-row items-center justify-between">
+          <Text className="text-text-primary text-3xl font-bold tracking-tight">Notifications</Text>
+          <TouchableOpacity 
+            className="px-4 py-2 bg-accent/10 rounded-2xl border border-accent/20"
+            onPress={() => {}}
+          >
+            <Text className="text-accent text-xs font-bold uppercase tracking-widest">Mark All</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Filter Tabs */}
-        <View>
+        <View className="mb-4">
           <FlatList
             data={['All', 'Unread', 'Mentions', 'Alerts']}
             horizontal
             showsHorizontalScrollIndicator={false}
             keyExtractor={(item) => item}
-            contentContainerStyle={{ paddingHorizontal: 24, paddingVertical: 12 }}
+            contentContainerStyle={{ paddingHorizontal: 24 }}
             renderItem={({ item }) => (
               <FilterTab 
                 label={item} 
@@ -266,6 +276,7 @@ export default function NotificationsScreen() {
         <FlatList
           data={filteredNotifications}
           keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
           renderItem={({ item, index }) => (
             <NotificationCard notification={item} index={index} />
           )}
@@ -280,7 +291,7 @@ export default function NotificationsScreen() {
               </Text>
             </View>
           }
-          contentContainerStyle={{ paddingBottom: 120 }}
+          contentContainerStyle={{ paddingBottom: 160 }}
         />
       </SafeAreaView>
       
