@@ -3,12 +3,14 @@ import { View, TouchableOpacity, Text } from 'react-native';
 import { Home, MessageSquare, Bell, Settings, User } from 'lucide-react-native';
 import { cn } from '@/utils/cn';
 
+import { router } from 'expo-router';
+
 export const FloatingNavbar = ({ activeTab = 'inbox' }: { activeTab?: string }) => {
   const tabs = [
-    { id: 'home', icon: Home, label: 'Home' },
-    { id: 'inbox', icon: MessageSquare, label: 'Inbox' },
-    { id: 'notify', icon: Bell, label: 'Alerts' },
-    { id: 'settings', icon: Settings, label: 'Settings' },
+    { id: 'home', icon: Home, label: 'Home', path: '/' },
+    { id: 'inbox', icon: MessageSquare, label: 'Inbox', path: '/' },
+    { id: 'notify', icon: Bell, label: 'Alerts', path: '/notifications' },
+    { id: 'settings', icon: Settings, label: 'Settings', path: '/accounts' },
   ];
 
   return (
@@ -21,6 +23,7 @@ export const FloatingNavbar = ({ activeTab = 'inbox' }: { activeTab?: string }) 
           <TouchableOpacity
             key={tab.id}
             activeOpacity={0.7}
+            onPress={() => router.push(tab.path as any)}
             className="items-center justify-center w-14 h-14"
           >
             {isActive && (

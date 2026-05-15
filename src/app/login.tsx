@@ -16,6 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { PremiumInput } from '@/components/ui/inputs/PremiumInput';
 import { PremiumButton } from '@/components/ui/buttons/PremiumButton';
+import { useAuthStore } from '@/store/use-auth-store';
 
 const { width, height } = Dimensions.get('window');
 
@@ -79,9 +80,12 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const setLoggedIn = useAuthStore(state => state.setLoggedIn);
+
   const handleLogin = () => {
     // Add simple validation
     if (email && password) {
+      setLoggedIn(true);
       router.replace('/');
     } else {
       console.log('Please enter email and password');

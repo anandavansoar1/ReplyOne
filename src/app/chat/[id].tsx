@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, ScrollView, Text, TouchableOpacity, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronLeft, MoreVertical, Send, Paperclip, Smile } from 'lucide-react-native';
+import { ChevronLeft, MoreVertical, Send, Paperclip, Smile, Bell } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { ChatBubble } from '@/components/ui/chat/ChatBubble';
 import { Input } from '@/components/ui/inputs/Input';
@@ -32,9 +32,17 @@ export default function ChatScreen() {
             </View>
           </View>
 
-          <TouchableOpacity className="p-2">
-            <MoreVertical size={20} color="#475569" />
-          </TouchableOpacity>
+          <View className="flex-row items-center gap-1">
+            <TouchableOpacity 
+              onPress={() => router.push('/notifications')}
+              className="p-2"
+            >
+              <Bell size={20} color="#475569" />
+            </TouchableOpacity>
+            <TouchableOpacity className="p-2">
+              <MoreVertical size={20} color="#475569" />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Messages */}

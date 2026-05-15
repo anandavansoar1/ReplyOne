@@ -9,14 +9,18 @@ import {
   RefreshCw,
   CheckCircle,
   AlertCircle,
-  Activity
+  Activity,
+  LogOut
 } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+import { useAuthStore } from '@/store/use-auth-store';
 import { useColorScheme } from 'nativewind';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { cn } from '@/utils/cn';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { PremiumHeader } from '@/components/ui/layout/PremiumHeader';
+import { FloatingNavbar } from '@/components/ui/layout/FloatingNavbar';
 
 const { width } = Dimensions.get('window');
 
@@ -56,6 +60,8 @@ const ACCOUNTS = [
 export default function AccountsScreen() {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const router = useRouter();
+  const logout = useAuthStore(state => state.logout);
 
   return (
     <View className="flex-1 bg-background">
@@ -161,7 +167,7 @@ export default function AccountsScreen() {
         </ScrollView>
 
         {/* Bottom CTA */}
-        <View className="absolute bottom-10 left-6 right-6">
+        <View className="absolute bottom-10 left-6 right-6 gap-3">
           <TouchableOpacity 
             activeOpacity={0.8}
             className="h-16 bg-foreground rounded-2xl flex-row items-center justify-center gap-2 shadow-2xl shadow-black/20"
@@ -172,8 +178,22 @@ export default function AccountsScreen() {
               isDark ? "text-black" : "text-white"
             )}>Connect New Account</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity 
+            onPress={() => {
+              logout();
+              router.replace('/login');
+            }}
+            activeOpacity={0.8}
+            className="h-16 bg-red-500/10 border border-red-500/20 rounded-2xl flex-row items-center justify-center gap-2"
+          >
+            <LogOut size={20} color="#EF4444" />
+            <Text className="text-red-500 text-lg font-bold">Logout Session</Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
+      
+      <FloatingNavbar activeTab="settings" />
     </View>
   );
 }

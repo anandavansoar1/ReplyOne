@@ -11,6 +11,7 @@ import Animated, {
 import { useRouter } from 'expo-router';
 import { Camera, Globe, MessageCircle, Bell, Zap, TrendingUp, Users } from 'lucide-react-native';
 import { Button } from '@/components/ui/buttons/Button';
+import { useAuthStore } from '@/store/use-auth-store';
 
 const { width, height } = Dimensions.get('window');
 
@@ -173,12 +174,16 @@ export default function OnboardingScreen() {
     },
   });
 
+  const setHasCompletedOnboarding = useAuthStore(state => state.setHasCompletedOnboarding);
+
   const handleNext = () => {
     if (currentIndex < SLIDES.length - 1) {
       scrollRef.current?.scrollTo({ x: (currentIndex + 1) * width, animated: true });
       setCurrentIndex(currentIndex + 1);
     } else {
-      router.replace('/');
+      setHasCompletedOnboarding(true);
+      // router.replace('/') is not strictly needed as layout will redirect, but good for UX
+      router.replace('/login');
     }
   };
 

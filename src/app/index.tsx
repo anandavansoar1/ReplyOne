@@ -21,6 +21,7 @@ import { useColorScheme } from 'nativewind';
 import { cn } from '@/utils/cn';
 import { BlurView } from 'expo-blur';
 import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
+import { FloatingNavbar } from '@/components/ui/layout/FloatingNavbar';
 
 const { width } = Dimensions.get('window');
 
@@ -135,7 +136,11 @@ export default function HomeScreen() {
                   <Moon size={22} color="#64748B" />
                 )}
               </TouchableOpacity>
-              <TouchableOpacity className="w-12 h-12 rounded-2xl bg-card border border-border items-center justify-center relative shadow-sm">
+
+              <TouchableOpacity 
+                onPress={() => router.push('/notifications')}
+                className="w-12 h-12 rounded-2xl bg-card border border-border items-center justify-center relative shadow-sm"
+              >
                 <Bell size={22} color={colorScheme === 'dark' ? '#F8FAFC' : '#0F172A'} />
                 <View className="absolute top-3 right-3 w-3 h-3 bg-accent border-2 border-card rounded-full" />
               </TouchableOpacity>
@@ -266,29 +271,7 @@ export default function HomeScreen() {
         </ScrollView>
 
         {/* Floating Bottom Navigation */}
-        <View className="absolute bottom-10 left-6 right-6 items-center">
-          <BlurView
-            intensity={80}
-            tint={colorScheme === 'dark' ? 'dark' : 'light'}
-            className="w-full h-20 rounded-[32px] border border-border overflow-hidden flex-row items-center justify-around px-4 shadow-2xl shadow-black/10"
-          >
-            <TouchableOpacity className="items-center justify-center p-3.5 rounded-2xl bg-accent shadow-lg shadow-accent/40">
-              <MessageCircle size={24} color="#FFF" />
-            </TouchableOpacity>
-            <TouchableOpacity className="items-center justify-center p-3.5">
-              <Bell size={24} color="#94A3B8" />
-            </TouchableOpacity>
-            <TouchableOpacity className="items-center justify-center p-3.5">
-              <Activity size={24} color="#94A3B8" />
-            </TouchableOpacity>
-            <TouchableOpacity 
-              onPress={() => router.push('/accounts')}
-              className="items-center justify-center p-3.5"
-            >
-              <Settings size={24} color="#94A3B8" />
-            </TouchableOpacity>
-          </BlurView>
-        </View>
+        <FloatingNavbar activeTab="home" />
       </SafeAreaView>
     </View>
   );
