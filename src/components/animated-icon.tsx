@@ -82,7 +82,7 @@ export function AnimatedSplashOverlay() {
           entering={FadeInUp.delay(400).duration(800).easing(premiumEasing)}
           style={styles.appName}
         >
-          ReplyOne
+          InboxKart
         </Animated.Text>
         
         {/* Micro-typography Subtitle */}

@@ -1,6 +1,6 @@
-# ReplyOne: Architecture & Integration Roadmap 🚀
+# InboxKart: Architecture & Integration Roadmap 🚀
 
-This document outlines how to transform the **ReplyOne** UI into a fully functional Unified Social Inbox. To handle messages and notifications from Instagram, Facebook, and WhatsApp in one place, you need a robust backend and official API integrations.
+This document outlines how to transform the **InboxKart** UI into a fully functional Unified Social Inbox. To handle messages and notifications from Instagram, Facebook, and WhatsApp in one place, you need a robust backend and official API integrations.
 
 ---
 
@@ -18,7 +18,7 @@ To get messages from these platforms, you must use their official APIs. Since In
 
 ### 🏗 Backend Server (The Brain)
 You need a server (Node.js, Python, or Go) to act as the middleman between Meta and your Mobile App.
-1.  **Webhook Listener**: Your server must have an endpoint (e.g., `https://api.replyone.com/webhooks/meta`) that Meta calls every time a new message arrives.
+1.  **Webhook Listener**: Your server must have an endpoint (e.g., `https://api.inboxkart.com/webhooks/meta`) that Meta calls every time a new message arrives.
 2.  **Database**: Store conversations, message history, and user tokens (e.g., PostgreSQL or MongoDB).
 3.  **Real-time Layer**: Use **WebSockets (Socket.io)** or **Supabase Realtime** to push the message from your server to the mobile app instantly.
 

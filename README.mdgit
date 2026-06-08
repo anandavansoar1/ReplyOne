@@ -1,1 +1,1 @@
-# ReplyOne initgit add README.mdgit commit -m first commitgit branch -M maingit remote add origin https://github.com/anandavansoar1/ReplyOne.gitgit push -u origin main
+# InboxKart initgit add README.mdgit commit -m first commitgit branch -M maingit remote add origin https://github.com/anandavansoar1/InboxKart.gitgit push -u origin main

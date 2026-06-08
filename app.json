@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "ReplyOne",
-    "slug": "ReplyOne",
+    "name": "InboxKart",
+    "slug": "InboxKart",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "replyone",
+    "scheme": "inboxkart",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon"
@@ -18,7 +18,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.avansoar1.ReplyOne"
+      "package": "com.avansoar1.InboxKart"
     },
     "web": {
       "output": "static",

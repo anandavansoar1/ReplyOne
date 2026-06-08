@@ -118,7 +118,7 @@ export default function LoginScreen() {
                   <View className="w-3 h-3 bg-white rounded-full" />
                 </View>
               </LinearGradient>
-              <Text className="text-text-primary text-2xl font-bold tracking-tighter mt-4">ReplyOne</Text>
+              <Text className="text-text-primary text-2xl font-bold tracking-tighter mt-4">InboxKart</Text>
             </View>
 
             {/* Welcome Heading */}
