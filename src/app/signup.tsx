@@ -12,7 +12,7 @@ import {
   ActivityIndicator
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Mail, Lock, Globe, ArrowRight } from 'lucide-react-native';
+import { User, Mail, Globe, Phone, Lock, UserPlus } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -77,32 +77,53 @@ const BackgroundDecor = ({ isDark }: { isDark: boolean }) => {
   );
 };
 
-export default function LoginScreen() {
+export default function SignupScreen() {
   const isDark = useColorScheme() === 'dark';
   const router = useRouter();
+  
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [countryCode, setCountryCode] = useState('+1');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const setAuth = useAuthStore(state => state.setAuth);
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please enter email and password');
+  const handleSignup = async () => {
+    if (!name || !email || !countryCode || !phone || !password) {
+      Alert.alert('Error', 'Please fill in all required fields');
+      return;
+    }
+
+    // Frontend Validations
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return;
+    }
+
+    if (phone.replace(/\D/g, '').length < 7) {
+      Alert.alert('Error', 'Please enter a valid phone number');
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters long');
       return;
     }
 
     try {
       setIsLoading(true);
-      const data = await apiFetch<{ user: any; token: string }>('/auth/login', {
+      const data = await apiFetch<{ user: any; token: string }>('/auth/signup', {
         method: 'POST',
-        data: { loginIdentifier: email, password },
+        data: { name, email, countryCode, phone, password },
       });
 
       setAuth(data.user, data.token);
       router.replace('/');
     } catch (error: any) {
-      Alert.alert('Login Failed', error.message || 'Invalid credentials');
+      Alert.alert('Signup Failed', error.message || 'Unable to create account');
     } finally {
       setIsLoading(false);
     }
@@ -123,7 +144,7 @@ export default function LoginScreen() {
             className="px-8"
           >
             {/* Logo Section */}
-            <View className="items-center mt-12 mb-10">
+            <View className="items-center mt-12 mb-6">
               <LinearGradient
                 colors={['#3B82F6', '#1E40AF']}
                 start={{ x: 0, y: 0 }}
@@ -137,14 +158,22 @@ export default function LoginScreen() {
               <Text className="text-text-primary text-2xl font-bold tracking-tighter mt-4">InboxKart</Text>
             </View>
 
-            {/* Welcome Heading */}
-            <View className="mb-10">
-              <Text className="text-text-primary text-3xl font-bold tracking-tight mb-2">Welcome Back</Text>
-              <Text className="text-text-secondary text-base">Sign in to manage your unified inbox</Text>
+            {/* Header Section */}
+            <View className="mb-8">
+              <Text className="text-text-primary text-3xl font-bold tracking-tight mb-2">Create Account</Text>
+              <Text className="text-text-secondary text-base">Join us and streamline your inbox</Text>
             </View>
 
             {/* Form Section */}
             <View>
+              <PremiumInput
+                label="Full Name"
+                icon={User}
+                value={name}
+                onChangeText={setName}
+                autoCapitalize="words"
+              />
+
               <PremiumInput
                 label="Email Address"
                 icon={Mail}
@@ -154,6 +183,29 @@ export default function LoginScreen() {
                 autoCapitalize="none"
               />
 
+              <View className="flex-row justify-between mb-5">
+                <View className="w-1/3 pr-2">
+                  <PremiumInput
+                    label="Code"
+                    icon={Globe}
+                    value={countryCode}
+                    onChangeText={setCountryCode}
+                    keyboardType="phone-pad"
+                    containerClassName="mb-0"
+                  />
+                </View>
+                <View className="flex-1 pl-2">
+                  <PremiumInput
+                    label="Phone Number"
+                    icon={Phone}
+                    value={phone}
+                    onChangeText={setPhone}
+                    keyboardType="phone-pad"
+                    containerClassName="mb-0"
+                  />
+                </View>
+              </View>
+
               <PremiumInput
                 label="Password"
                 icon={Lock}
@@ -162,16 +214,12 @@ export default function LoginScreen() {
                 secureTextEntry
               />
 
-              <TouchableOpacity className="self-end mb-8">
-                <Text className="text-blue-500 font-semibold text-sm">Forgot Password?</Text>
-              </TouchableOpacity>
-
-              {/* Login Button */}
+              {/* Signup Button */}
               <PremiumButton
-                label="Sign In"
-                icon={ArrowRight}
-                onPress={handleLogin}
-                containerClassName="mb-4"
+                label="Create Account"
+                icon={UserPlus}
+                onPress={handleSignup}
+                containerClassName="mt-6 mb-4"
                 loading={isLoading}
               />
 
@@ -192,11 +240,11 @@ export default function LoginScreen() {
                 containerClassName="mb-10"
               />
 
-              {/* Signup Link */}
-              <View className="flex-row justify-center items-center py-10">
-                <Text className="text-text-secondary text-sm">Don't have an account? </Text>
-                <TouchableOpacity onPress={() => router.push('/signup')}>
-                  <Text className="text-blue-500 font-bold text-sm">Create One</Text>
+              {/* Login Link */}
+              <View className="flex-row justify-center items-center py-6">
+                <Text className="text-text-secondary text-sm">Already have an account? </Text>
+                <TouchableOpacity onPress={() => router.push('/login')}>
+                  <Text className="text-blue-500 font-bold text-sm">Sign In</Text>
                 </TouchableOpacity>
               </View>
             </View>

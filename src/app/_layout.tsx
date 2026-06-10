@@ -24,7 +24,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (!mounted) return;
 
-    const inAuthGroup = segments[0] === 'login';
+    const inAuthGroup = segments[0] === 'login' || segments[0] === 'signup';
     const inOnboarding = segments[0] === 'onboarding';
 
     if (!hasCompletedOnboarding && !inOnboarding) {
@@ -48,6 +48,7 @@ export default function RootLayout() {
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />
           <Stack.Screen name="login" />
+          <Stack.Screen name="signup" />
           <Stack.Screen name="onboarding" />
           <Stack.Screen name="accounts" options={{ presentation: 'modal' }} />
           <Stack.Screen name="notifications" />

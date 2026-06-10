@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, ScrollView, Text, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, ScrollView, Text, TouchableOpacity, Dimensions, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { 
   Camera, 
@@ -18,8 +18,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { cn } from '@/utils/cn';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
+import { apiFetch, BASE_URL } from '@/utils/api';
 import { PremiumHeader } from '@/components/ui/layout/PremiumHeader';
 import { FloatingNavbar } from '@/components/ui/layout/FloatingNavbar';
+
+WebBrowser.maybeCompleteAuthSession();
+
 
 const { width } = Dimensions.get('window');
 
@@ -60,7 +66,99 @@ export default function AccountsScreen() {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
   const router = useRouter();
-  const logout = useAuthStore(state => state.logout);
+  const { user, token, setAuth, logout } = useAuthStore();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const fetchUserProfile = async () => {
+    try {
+      setIsRefreshing(true);
+      const data = await apiFetch<{ success: boolean; user: any }>('/auth/me', { token });
+      if (data.success && data.user) {
+        setAuth(data.user, token!);
+      }
+    } catch (error) {
+      console.error('Failed to refresh profile', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    if (token) {
+      fetchUserProfile();
+    }
+  }, [token]);
+
+  const handleConnect = async (platform: string, isConnected: boolean) => {
+    if (platform === 'Instagram') {
+      if (isConnected) {
+        Alert.alert(
+          "Configure Instagram",
+          "Would you like to disconnect your Instagram account?",
+          [
+            { text: "Cancel", style: "cancel" },
+            { 
+              text: "Disconnect", 
+              style: "destructive", 
+              onPress: async () => {
+                try {
+                  await apiFetch('/auth/instagram/disconnect', { method: 'POST', token });
+                  await fetchUserProfile();
+                } catch (err) {
+                  Alert.alert("Error", "Could not disconnect Instagram");
+                }
+              }
+            }
+          ]
+        );
+        return;
+      }
+
+      const redirectUrl = Linking.createURL('/accounts');
+      const initUrl = `/auth/instagram/login?userId=${user?.id}&frontendUrl=${encodeURIComponent(redirectUrl)}`;
+
+      try {
+        const response = await apiFetch<{ success: boolean; url: string }>(initUrl);
+        if (response.success && response.url) {
+          const result = await WebBrowser.openAuthSessionAsync(response.url, redirectUrl);
+          if (result.type === 'success' && result.url) {
+            if (result.url.includes('instagram=connected')) {
+              await fetchUserProfile();
+              Alert.alert("Success", "Instagram connected successfully!");
+            } else if (result.url.includes('instagram=error')) {
+              // Extract the reason parameter from the URL if it exists
+              let reason = "Unknown error";
+              try {
+                const match = result.url.match(/reason=([^&]+)/);
+                if (match && match[1]) {
+                  reason = decodeURIComponent(match[1]);
+                }
+              } catch (e) {}
+              
+              Alert.alert("Connection Failed", `Unable to complete Instagram connection. Reason: ${reason}`);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Browser Auth Error:", err);
+      }
+    } else {
+      Alert.alert("Coming Soon", `${platform} connection will be available soon.`);
+    }
+  };
+
+  const dynamicAccounts = ACCOUNTS.map(acc => {
+    if (acc.platform === 'Instagram') {
+      const isConnected = user?.instagram?.connected;
+      return {
+        ...acc,
+        status: isConnected ? 'connected' : 'disconnected',
+        username: isConnected ? 'Connected Account' : 'Not Connected',
+        lastSync: isConnected ? 'Just now' : 'Never',
+      };
+    }
+    return acc;
+  });
 
   return (
     <View className="flex-1 bg-background">
@@ -78,7 +176,7 @@ export default function AccountsScreen() {
           </View>
 
           <View className="gap-6">
-            {ACCOUNTS.map((account, index) => (
+            {dynamicAccounts.map((account, index) => (
               <Animated.View 
                 key={account.id}
                 entering={FadeInDown.delay(index * 150)}
@@ -144,6 +242,7 @@ export default function AccountsScreen() {
                       </Text>
                     </View>
                     <TouchableOpacity 
+                      onPress={() => handleConnect(account.platform, account.status === 'connected')}
                       className={cn(
                         "px-6 py-2.5 rounded-xl border items-center justify-center shadow-sm",
                         account.status === 'connected' 
