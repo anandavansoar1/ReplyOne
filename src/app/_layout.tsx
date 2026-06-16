@@ -52,6 +52,9 @@ export default function RootLayout() {
           <Stack.Screen name="onboarding" />
           <Stack.Screen name="accounts" options={{ presentation: 'modal' }} />
           <Stack.Screen name="notifications" />
+          <Stack.Screen name="compose" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="inbox" />
+          <Stack.Screen name="chat/[id]" />
         </Stack>
       </View>
     </ThemeProvider>

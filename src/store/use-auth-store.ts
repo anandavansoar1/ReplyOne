@@ -8,6 +8,8 @@ export interface User {
   email: string;
   phone?: string;
   countryCode?: string;
+  instagram?: any;
+  facebook?: any;
 }
 
 interface AuthState {

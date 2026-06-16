@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 import { View, ScrollView, Text, TouchableOpacity, Image, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { 
   Search, 
-  MessageCircle, 
-  Camera,
-  Globe,
   Layout,
   MoreHorizontal,
   ChevronRight,
   Filter
 } from 'lucide-react-native';
+import { FontAwesome5 } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 import { cn } from '@/utils/cn';
 import { BlurView } from 'expo-blur';
@@ -64,9 +62,9 @@ const CONVERSATIONS = [
 
 const PlatformIcon = ({ platform }: { platform: string }) => {
   switch (platform) {
-    case 'instagram': return <Camera size={12} color="#FFF" />;
-    case 'facebook': return <Globe size={12} color="#FFF" />;
-    case 'whatsapp': return <MessageCircle size={12} color="#FFF" />;
+    case 'instagram': return <FontAwesome5 name="instagram" size={12} color="#FFF" />;
+    case 'facebook': return <FontAwesome5 name="facebook-f" size={12} color="#FFF" />;
+    case 'whatsapp': return <FontAwesome5 name="whatsapp" size={12} color="#FFF" />;
     default: return null;
   }
 };
@@ -81,6 +79,7 @@ const getPlatformColor = (platform: string) => {
 };
 
 export default function InboxScreen() {
+  const router = useRouter();
   const { colorScheme } = useColorScheme();
 
   return (

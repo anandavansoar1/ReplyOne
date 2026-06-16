@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { View, ScrollView, Text, TouchableOpacity, Image, TextInput, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
-import { 
-  Search, 
-  Bell, 
-  MessageSquare, 
-  Settings, 
+import { useRouter } from 'expo-router';
+import { useAuthStore } from '@/store/use-auth-store';
+import {
+  Search,
+  Bell,
+  MessageSquare,
+  Settings,
   MoreHorizontal,
   Camera,
   Globe,
@@ -28,14 +29,15 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { FloatingNavbar } from '@/components/ui/layout/FloatingNavbar';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
 const FILTERS = [
   { id: 'all', label: 'All', icon: Layout, color: '#6366F1' },
-  { id: 'whatsapp', label: 'WhatsApp', icon: MessageSquare, color: '#25D366' },
-  { id: 'instagram', label: 'Instagram', icon: Camera, color: '#E4405F' },
-  { id: 'facebook', label: 'Facebook', icon: Globe, color: '#1877F2' },
+  { id: 'whatsapp', label: 'WhatsApp', isBrand: true, icon: 'whatsapp', color: '#25D366' },
+  { id: 'instagram', label: 'Instagram', isBrand: true, icon: 'instagram', color: '#E4405F' },
+  { id: 'facebook', label: 'Facebook', isBrand: true, icon: 'facebook-f', color: '#1877F2' },
 ];
 
 const RECENT_ACTIVITY = [
@@ -44,10 +46,12 @@ const RECENT_ACTIVITY = [
   { id: '3', name: 'System', action: 'Facebook account synced', time: '1H AGO', platform: 'facebook' },
 ];
 
+// ACCOUNTS will be dynamically generated inside the component
+
 const ACCOUNTS = [
-  { id: '1', platform: 'Instagram', status: 'Online', color: '#E4405F', icon: Camera },
-  { id: '2', platform: 'WhatsApp', status: 'Online', color: '#25D366', icon: MessageSquare },
-  { id: '3', platform: 'Facebook', status: 'Offline', color: '#1877F2', icon: Globe },
+  { id: '1', platform: 'Instagram', status: 'Offline', color: '#E4405F', icon: 'instagram', isBrand: true },
+  { id: '2', platform: 'WhatsApp', status: 'Offline', color: '#25D366', icon: 'whatsapp', isBrand: true },
+  { id: '3', platform: 'Facebook', status: 'Offline', color: '#1877F2', icon: 'facebook-f', isBrand: true },
 ];
 
 const StatCard = ({ label, value, icon: Icon, color, trend }: any) => (
@@ -69,9 +73,21 @@ const StatCard = ({ label, value, icon: Icon, color, trend }: any) => (
 );
 
 export default function DashboardScreen() {
+  const router = useRouter();
   const { colorScheme, toggleColorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
   const [activeFilter, setActiveFilter] = useState('all');
+  const { user } = useAuthStore();
+
+  const dynamicAccounts = ACCOUNTS.map(acc => {
+    if (acc.platform === 'Instagram') {
+      return { ...acc, status: user?.instagram?.connected ? 'Online' : 'Offline' };
+    }
+    if (acc.platform === 'Facebook') {
+      return { ...acc, status: user?.facebook?.connected ? 'Online' : 'Offline' };
+    }
+    return acc;
+  });
 
   return (
     <View className="flex-1 bg-background">
@@ -95,7 +111,7 @@ export default function DashboardScreen() {
               <Text className="text-text-muted text-[9px] font-bold uppercase tracking-widest">Enterprise Plan</Text>
             </View>
           </View>
-          
+
           <View className="flex-row items-center gap-2">
             <TouchableOpacity
               onPress={toggleColorScheme}
@@ -103,7 +119,7 @@ export default function DashboardScreen() {
             >
               {colorScheme === 'dark' ? <Sun size={16} color="#FBBF24" /> : <Moon size={16} color="#64748B" />}
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => router.push('/notifications')}
               className="w-10 h-10 rounded-xl bg-card border border-border items-center justify-center relative shadow-sm"
             >
@@ -113,17 +129,17 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        <ScrollView 
-          className="flex-1" 
+        <ScrollView
+          className="flex-1"
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 120, paddingTop: 4 }}
         >
           {/* PREMIUM SEARCH SECTION */}
-          <Animated.View entering={FadeInDown.delay(100)} className="px-4 mb-5">
+          {/* <Animated.View entering={FadeInDown.delay(100)} className="px-4 mb-4">
             <View className="bg-card border border-border rounded-[24px] px-5 py-3 flex-row items-center shadow-sm">
               <Search size={18} color="#64748B" />
-              <TextInput 
-                placeholder="Search command..." 
+              <TextInput
+                placeholder="Search command..."
                 placeholderTextColor="#94A3B8"
                 className="flex-1 ml-3 text-text-primary font-medium text-sm"
               />
@@ -131,6 +147,37 @@ export default function DashboardScreen() {
                 <Text className="text-text-muted text-[9px] font-bold tracking-tighter">CMD + K</Text>
               </View>
             </View>
+          </Animated.View> */}
+
+          {/* QUICK POST ENTRY */}
+          <Animated.View entering={FadeInDown.delay(150)} className="px-4 mb-5">
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => router.push('/compose')}
+              className="bg-card border border-border rounded-[24px] p-4 flex-row items-center justify-between shadow-sm"
+            >
+              <View className="flex-row items-center gap-3 flex-1">
+                <Image
+                  source={{ uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop' }}
+                  className="w-10 h-10 rounded-full border border-border"
+                />
+                <View>
+                  <Text className="text-text-primary text-sm font-bold">Create Post</Text>
+                  <Text className="text-text-muted text-xs">Share to all platforms...</Text>
+                </View>
+              </View>
+              <View className="flex-row items-center gap-1.5">
+                <View className="w-8 h-8 rounded-full bg-secondary items-center justify-center">
+                  <FontAwesome5 name="instagram" size={14} color="#E4405F" />
+                </View>
+                <View className="w-8 h-8 rounded-full bg-secondary items-center justify-center">
+                  <FontAwesome5 name="facebook-f" size={12} color="#1877F2" />
+                </View>
+                <View className="w-8 h-8 rounded-full bg-secondary items-center justify-center">
+                  <FontAwesome5 name="whatsapp" size={14} color="#25D366" />
+                </View>
+              </View>
+            </TouchableOpacity>
           </Animated.View>
 
           {/* REFINED PLATFORM FILTERS */}
@@ -143,22 +190,33 @@ export default function DashboardScreen() {
                     onPress={() => setActiveFilter(filter.id)}
                     className={cn(
                       "px-4 py-2.5 rounded-full border flex-row items-center gap-2 transition-all shadow-sm",
-                      activeFilter === filter.id 
+                      activeFilter === filter.id
                         ? (isDark ? "bg-white border-white" : "bg-[#0F172A] border-[#0F172A]")
                         : "bg-card border-border"
                     )}
                   >
-                    <filter.icon 
-                      size={12} 
-                      color={activeFilter === filter.id 
-                        ? (isDark ? "#000" : "#FFF") 
-                        : (filter.color || "#94A3B8")
-                      } 
-                    />
+                    {filter.isBrand ? (
+                      <FontAwesome5
+                        name={filter.icon as any}
+                        size={12}
+                        color={activeFilter === filter.id
+                          ? (isDark ? "#000" : "#FFF")
+                          : (filter.color || "#94A3B8")
+                        }
+                      />
+                    ) : (
+                      <filter.icon
+                        size={12}
+                        color={activeFilter === filter.id
+                          ? (isDark ? "#000" : "#FFF")
+                          : (filter.color || "#94A3B8")
+                        }
+                      />
+                    )}
                     <Text className={cn(
-                      "text-xs font-bold", 
-                      activeFilter === filter.id 
-                        ? "text-white dark:text-black" 
+                      "text-xs font-bold",
+                      activeFilter === filter.id
+                        ? "text-white dark:text-black"
                         : "text-text-secondary"
                     )}>
                       {filter.label}
@@ -179,7 +237,7 @@ export default function DashboardScreen() {
             >
               {/* Subtle top glow instead of curved gloss */}
               <View className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-10 -mt-10" />
-              
+
               <View className="flex-row justify-between items-start mb-6 relative z-10">
                 <View>
                   <View className="flex-row items-center gap-1.5 mb-1.5">
@@ -196,7 +254,7 @@ export default function DashboardScreen() {
                   <Text className="text-accent text-[9px] font-black uppercase tracking-widest">Live Feed</Text>
                 </View>
               </View>
-              
+
               <View className="flex-row gap-3 relative z-10">
                 <View className="flex-1 bg-white/10 rounded-[20px] p-4 border border-white/5">
                   <Text className="text-white/60 text-[9px] font-black uppercase tracking-widest mb-1.5">REPLIES TODAY</Text>
@@ -224,16 +282,16 @@ export default function DashboardScreen() {
             </View>
             <View className="gap-2.5">
               {RECENT_ACTIVITY.map((activity) => (
-                <TouchableOpacity 
+                <TouchableOpacity
                   key={activity.id}
                   onPress={() => router.push(`/chat/${activity.id}` as any)}
                   activeOpacity={0.7}
                   className="bg-card border border-border rounded-[20px] p-3 flex-row items-center gap-3"
                 >
                   <View className="w-10 h-10 rounded-xl bg-secondary items-center justify-center border border-border/10 shadow-sm">
-                    {activity.platform === 'instagram' ? <Camera size={18} color="#E4405F" /> : 
-                     activity.platform === 'whatsapp' ? <MessageSquare size={18} color="#25D366" /> : 
-                     <Globe size={18} color="#1877F2" />}
+                    {activity.platform === 'instagram' ? <FontAwesome5 name="instagram" size={18} color="#E4405F" /> :
+                      activity.platform === 'whatsapp' ? <FontAwesome5 name="whatsapp" size={18} color="#25D366" /> :
+                        <FontAwesome5 name="facebook-f" size={18} color="#1877F2" />}
                   </View>
                   <View className="flex-1">
                     <View className="flex-row items-center gap-2 mb-0.5">
@@ -253,39 +311,43 @@ export default function DashboardScreen() {
 
           {/* CHANNEL STATUS */}
           <Animated.View entering={FadeInDown.delay(500)} className="mb-4">
-             <Text className="text-text-primary text-lg font-bold mb-3 px-4 tracking-tight">Channel Health</Text>
-             <ScrollView 
-               horizontal 
-               showsHorizontalScrollIndicator={false} 
-               contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}
-             >
-                {ACCOUNTS.map((account) => (
-                  <View key={account.id} className="bg-card border border-border rounded-[20px] p-2.5 pr-5 flex-row items-center shadow-sm">
-                    <View className={cn("w-9 h-9 rounded-xl items-center justify-center mr-3", account.status === 'Online' ? "bg-accent-success/10" : "bg-secondary")}>
+            <Text className="text-text-primary text-lg font-bold mb-3 px-4 tracking-tight">Channel Health</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}
+            >
+              {dynamicAccounts.map((account) => (
+                <View key={account.id} className="bg-card border border-border rounded-[20px] p-2.5 pr-5 flex-row items-center shadow-sm">
+                  <View className={cn("w-9 h-9 rounded-xl items-center justify-center mr-3", account.status === 'Online' ? "bg-accent-success/10" : "bg-secondary")}>
+                    {account.isBrand ? (
+                      <FontAwesome5 name={account.icon as any} size={16} color={account.color} />
+                    ) : (
                       <account.icon size={16} color={account.color} />
-                    </View>
-                    <View>
-                      <Text 
-                        numberOfLines={1}
-                        className="text-text-primary text-[12px] font-bold mb-0.5"
-                      >
-                        {account.platform}
-                      </Text>
-                      <View className="flex-row items-center">
-                        <View className={cn("w-1.5 h-1.5 rounded-full mr-1.5", account.status === 'Online' ? "bg-accent-success" : "bg-text-muted")} />
-                        <Text className="text-text-muted text-[9px] font-bold uppercase tracking-widest">{account.status}</Text>
-                      </View>
+                    )}
+                  </View>
+                  <View>
+                    <Text
+                      numberOfLines={1}
+                      className="text-text-primary text-[12px] font-bold mb-0.5"
+                    >
+                      {account.platform}
+                    </Text>
+                    <View className="flex-row items-center">
+                      <View className={cn("w-1.5 h-1.5 rounded-full mr-1.5", account.status === 'Online' ? "bg-accent-success" : "bg-text-muted")} />
+                      <Text className="text-text-muted text-[9px] font-bold uppercase tracking-widest">{account.status}</Text>
                     </View>
                   </View>
-                ))}
-                <TouchableOpacity 
-                  onPress={() => router.push('/accounts')}
-                  className="bg-secondary/50 border border-dashed border-border rounded-[20px] p-2.5 px-4 items-center justify-center flex-row gap-2"
-                >
-                  <Plus size={16} color="#94A3B8" />
-                  <Text className="text-text-muted text-[11px] font-bold">Add</Text>
-                </TouchableOpacity>
-             </ScrollView>
+                </View>
+              ))}
+              <TouchableOpacity
+                onPress={() => router.push('/accounts')}
+                className="bg-secondary/50 border border-dashed border-border rounded-[20px] p-2.5 px-4 items-center justify-center flex-row gap-2"
+              >
+                <Plus size={16} color="#94A3B8" />
+                <Text className="text-text-muted text-[11px] font-bold">Add</Text>
+              </TouchableOpacity>
+            </ScrollView>
           </Animated.View>
         </ScrollView>
 

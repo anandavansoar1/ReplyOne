@@ -2,6 +2,7 @@ import React from 'react';
 import { View, ScrollView, Text, TouchableOpacity, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, MoreVertical, Send, Paperclip, Smile, Bell } from 'lucide-react-native';
+import { FontAwesome5 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { ChatBubble } from '@/components/ui/chat/ChatBubble';
 import { Input } from '@/components/ui/inputs/Input';
@@ -27,7 +28,11 @@ export default function ChatScreen() {
               <Text className="text-text-primary font-bold text-base tracking-tight">Alex Thompson</Text>
               <View className="flex-row items-center">
                 <View className="w-2 h-2 rounded-full bg-accent-success mr-1.5" />
-                <Text className="text-text-muted text-xs">Online • Instagram</Text>
+                <Text className="text-text-muted text-xs">Online • </Text>
+                <View className="flex-row items-center ml-0.5">
+                  <FontAwesome5 name="instagram" size={10} color="#E4405F" />
+                  <Text className="text-text-muted text-xs ml-1">Instagram</Text>
+                </View>
               </View>
             </View>
           </View>
