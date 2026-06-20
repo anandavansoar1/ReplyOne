@@ -6,7 +6,8 @@ import { useAuthStore } from '@/store/use-auth-store';
 const HOST = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
 const PORT = 5001;
 
-export const BASE_URL = `http://${HOST}:${PORT}/api`;
+// Use the environment variable if defined, otherwise fallback to the live URL
+export const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://app.inboxkart.in/api';
 
 interface ApiOptions extends RequestInit {
   data?: any;

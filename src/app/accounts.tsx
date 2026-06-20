@@ -140,10 +140,21 @@ export default function AccountsScreen() {
       const initUrl = `/auth/instagram/login?userId=${user?.id}&frontendUrl=${encodeURIComponent(redirectUrl)}`;
 
       try {
-        const fullUrl = `${BASE_URL}${initUrl}`;
-        await Linking.openURL(fullUrl);
+        let response: any = await apiFetch(initUrl, { token });
+        if (typeof response === 'string') {
+          try { response = JSON.parse(response); } catch(e) {}
+        }
+        
+        if (response?.success && response?.url) {
+          try { WebBrowser.dismissBrowser(); } catch(e) {}
+          await WebBrowser.openAuthSessionAsync(response.url, redirectUrl);
+        } else {
+          console.log("Invalid response from server:", response);
+          Alert.alert("Error", "Failed to get Instagram connection URL. Server returned invalid format.");
+        }
       } catch (err) {
         console.error("Browser Auth Error:", err);
+        Alert.alert("Error", "Could not initiate Instagram connection.");
       }
     } else if (platform === 'Facebook') {
       if (isConnected) {
@@ -171,12 +182,14 @@ export default function AccountsScreen() {
 
       const redirectUrl = Linking.createURL('/accounts');
       const initUrl = `/auth/facebook/login?userId=${user?.id}&frontendUrl=${encodeURIComponent(redirectUrl)}`;
+      const fullUrl = `${BASE_URL}${initUrl}`;
 
       try {
-        const fullUrl = `${BASE_URL}${initUrl}`;
-        await Linking.openURL(fullUrl);
+        try { WebBrowser.dismissBrowser(); } catch(e) {}
+        await WebBrowser.openAuthSessionAsync(fullUrl, redirectUrl);
       } catch (err) {
         console.error("Browser Auth Error:", err);
+        Alert.alert("Error", "Could not initiate Facebook connection.");
       }
     } else {
       Alert.alert("Coming Soon", `${platform} connection will be available soon.`);

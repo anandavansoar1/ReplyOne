@@ -9,7 +9,8 @@ import {
   ScrollView,
   useColorScheme,
   Alert,
-  ActivityIndicator
+  ActivityIndicator,
+  Image
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, Mail, Globe, Phone, Lock, UserPlus } from 'lucide-react-native';
@@ -145,16 +146,11 @@ export default function SignupScreen() {
           >
             {/* Logo Section */}
             <View className="items-center mt-12 mb-6">
-              <LinearGradient
-                colors={['#3B82F6', '#1E40AF']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                className="w-16 h-16 rounded-[20px] items-center justify-center shadow-xl shadow-blue-600/40"
-              >
-                <View className="w-8 h-8 border-[2.5px] border-white/90 rounded-lg items-center justify-center">
-                  <View className="w-3 h-3 bg-white rounded-full" />
-                </View>
-              </LinearGradient>
+              <Image
+                source={require('../../assets/images/icon.png')}
+                className="w-16 h-16 rounded-[20px]"
+                resizeMode="cover"
+              />
               <Text className="text-text-primary text-2xl font-bold tracking-tighter mt-4">InboxKart</Text>
             </View>
 

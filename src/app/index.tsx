@@ -79,15 +79,27 @@ export default function DashboardScreen() {
   const [activeFilter, setActiveFilter] = useState('all');
   const { user } = useAuthStore();
 
-  const dynamicAccounts = ACCOUNTS.map(acc => {
-    if (acc.platform === 'Instagram') {
-      return { ...acc, status: user?.instagram?.connected ? 'Online' : 'Offline' };
-    }
-    if (acc.platform === 'Facebook') {
-      return { ...acc, status: user?.facebook?.connected ? 'Online' : 'Offline' };
-    }
-    return acc;
-  });
+  const dynamicAccounts = ACCOUNTS.filter(acc => {
+    if (acc.platform === 'Instagram' && !user?.instagram?.connected) return false;
+    if (acc.platform === 'Facebook' && !user?.facebook?.connected) return false;
+    return true;
+  }).map(acc => ({
+    ...acc,
+    status: 'Online'
+  }));
+
+  const activeChannelsCount = dynamicAccounts.length;
+  // Calculate stats based ONLY on connected social accounts
+  const connectedSocials = (user?.instagram?.connected ? 1 : 0) + (user?.facebook?.connected ? 1 : 0);
+  const pendingResponses = connectedSocials === 0 ? 0 : 41 * connectedSocials;
+  const repliesToday = connectedSocials === 0 ? 0 : 160 * connectedSocials;
+  const activeConvos = connectedSocials === 0 ? 0 : 4 * connectedSocials;
+  
+  const responseRate = connectedSocials === 0 ? "0%" : "98.2%";
+  const responseTrend = connectedSocials === 0 ? null : "+2.4%";
+  
+  const avgResponse = connectedSocials === 0 ? "0s" : "4m 12s";
+  const avgTrend = connectedSocials === 0 ? null : "-12s";
 
   return (
     <View className="flex-1 bg-background">
@@ -167,12 +179,16 @@ export default function DashboardScreen() {
                 </View>
               </View>
               <View className="flex-row items-center gap-1.5">
-                <View className="w-8 h-8 rounded-full bg-secondary items-center justify-center">
-                  <FontAwesome5 name="instagram" size={14} color="#E4405F" />
-                </View>
-                <View className="w-8 h-8 rounded-full bg-secondary items-center justify-center">
-                  <FontAwesome5 name="facebook-f" size={12} color="#1877F2" />
-                </View>
+                {user?.instagram?.connected && (
+                  <View className="w-8 h-8 rounded-full bg-secondary items-center justify-center">
+                    <FontAwesome5 name="instagram" size={14} color="#E4405F" />
+                  </View>
+                )}
+                {user?.facebook?.connected && (
+                  <View className="w-8 h-8 rounded-full bg-secondary items-center justify-center">
+                    <FontAwesome5 name="facebook-f" size={12} color="#1877F2" />
+                  </View>
+                )}
                 <View className="w-8 h-8 rounded-full bg-secondary items-center justify-center">
                   <FontAwesome5 name="whatsapp" size={14} color="#25D366" />
                 </View>
@@ -184,7 +200,11 @@ export default function DashboardScreen() {
           <Animated.View entering={FadeInDown.delay(200)} className="px-4 mb-5">
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View className="flex-row gap-2">
-                {FILTERS.map((filter) => (
+                {FILTERS.filter(f => {
+                  if (f.id === 'instagram' && !user?.instagram?.connected) return false;
+                  if (f.id === 'facebook' && !user?.facebook?.connected) return false;
+                  return true;
+                }).map((filter) => (
                   <TouchableOpacity
                     key={filter.id}
                     onPress={() => setActiveFilter(filter.id)}
@@ -246,31 +266,31 @@ export default function DashboardScreen() {
                     </View>
                     <Text className="text-white/60 text-[10px] font-bold uppercase tracking-[0.2em]">Command Center</Text>
                   </View>
-                  <Text className="text-white text-4xl font-bold tracking-tight">124</Text>
-                  <Text className="text-white/50 text-[11px] mt-1 font-medium">Pending responses • 3 Active Channels</Text>
+                  <Text className="text-white text-4xl font-bold tracking-tight">{pendingResponses}</Text>
+                  <Text className="text-white/50 text-[11px] mt-1 font-medium">Pending responses • {activeChannelsCount} Active Channels</Text>
                 </View>
                 <View className="bg-accent/20 px-3 py-1.5 rounded-full border border-accent/30 flex-row items-center gap-1.5 mt-1">
-                  <View className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                  <Text className="text-accent text-[9px] font-black uppercase tracking-widest">Live Feed</Text>
+                  <View className={cn("w-1.5 h-1.5 rounded-full", connectedSocials > 0 ? "bg-accent animate-pulse" : "bg-white/30")} />
+                  <Text className={cn("text-[9px] font-black uppercase tracking-widest", connectedSocials > 0 ? "text-accent" : "text-white/30")}>Live Feed</Text>
                 </View>
               </View>
 
               <View className="flex-row gap-3 relative z-10">
                 <View className="flex-1 bg-white/10 rounded-[20px] p-4 border border-white/5">
                   <Text className="text-white/60 text-[9px] font-black uppercase tracking-widest mb-1.5">REPLIES TODAY</Text>
-                  <Text className="text-white text-2xl font-bold">482</Text>
+                  <Text className="text-white text-2xl font-bold">{repliesToday}</Text>
                 </View>
                 <View className="flex-1 bg-white/10 rounded-[20px] p-4 border border-white/5">
                   <Text className="text-white/60 text-[9px] font-black uppercase tracking-widest mb-1.5">ACTIVE CONVOS</Text>
-                  <Text className="text-white text-2xl font-bold">12</Text>
+                  <Text className="text-white text-2xl font-bold">{activeConvos}</Text>
                 </View>
               </View>
             </LinearGradient>
           </Animated.View>
 
           <View className="px-4 mb-5 flex-row gap-3">
-            <StatCard label="Response Rate" value="98.2%" icon={CheckCircle2} color="#16A34A" trend="+2.4%" />
-            <StatCard label="Avg. Response" value="4m 12s" icon={Clock} color="#2563EB" trend="-12s" />
+            <StatCard label="Response Rate" value={responseRate} icon={CheckCircle2} color="#16A34A" trend={responseTrend} />
+            <StatCard label="Avg. Response" value={avgResponse} icon={Clock} color="#2563EB" trend={avgTrend} />
           </View>
 
           <Animated.View entering={FadeInDown.delay(400)} className="px-4 mb-5">
@@ -281,7 +301,11 @@ export default function DashboardScreen() {
               </TouchableOpacity>
             </View>
             <View className="gap-2.5">
-              {RECENT_ACTIVITY.map((activity) => (
+              {RECENT_ACTIVITY.filter(activity => {
+                if (activity.platform === 'instagram' && !user?.instagram?.connected) return false;
+                if (activity.platform === 'facebook' && !user?.facebook?.connected) return false;
+                return true;
+              }).map((activity) => (
                 <TouchableOpacity
                   key={activity.id}
                   onPress={() => router.push(`/chat/${activity.id}` as any)}

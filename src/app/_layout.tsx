@@ -4,7 +4,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import React from 'react';
 import { View } from 'react-native';
 import { useColorScheme as useTailwindColor } from 'nativewind';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, router, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/use-auth-store';
@@ -13,7 +13,6 @@ export default function RootLayout() {
   const { colorScheme } = useTailwindColor();
   const [mounted, setMounted] = useState(false);
   const segments = useSegments();
-  const router = useRouter();
   
   const { isLoggedIn, hasCompletedOnboarding } = useAuthStore();
 
